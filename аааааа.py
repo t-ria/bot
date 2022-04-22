@@ -9,7 +9,7 @@ bot = telebot.TeleBot('5129343704:AAEQ0O6FhQ_tno-PJzgaLe4cDy0vZHGWa00')
 
 # -----------------------------------------------------------------------
 @bot.message_handler(commands=["start"])
-def start(message, res=False):
+def command(message, res=False):
     chat_id = message.chat.id
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -18,16 +18,36 @@ def start(message, res=False):
     markup.add(btn1, btn2)
 
     bot.send_message(chat_id,
-                     text="Привет, {0.first_name}! Я недоббот и скоро я смогу сделать что-то полезное".format(
+                     text="Привет, {0.first_name}! Я недоделанный бот, и я ничего не умею".format(
                          message.from_user), reply_markup=markup)
     bot.send_sticker(message.chat.id, "CAACAgIAAxkBAAEEQXRiPK2HXCCsXExpgoeJf4ReHXhQOwAC6B8AAtjY4QABDYxCQyBiSoYjBA")
 
-@bot.message_handler(commands="start")
-def command(message, res=False):
+# -----------------------------------------------------------------------
+# Получение сообщений от юзера
+@bot.message_handler(content_types=['text'])
+def get_text_messages(message):
     chat_id = message.chat.id
-    bot.send_sticker(chat_id, "CAACAgIAAxkBAAIaeWJEeEmCvnsIzz36cM0oHU96QOn7AAJUAANBtVYMarf4xwiNAfojBA")
-    txt_message = f"Привет, {message.from_user.first_name}! Я тестовый бот для курса программирования на языке Python"
-    bot.send_message(chat_id, text=txt_message, reply_markup=Menu.getMenu(chat_id, "Главное меню").markup)
+    ms_text = message.text
+
+
+    if ms_text == "Помощь":
+       # send_help(chat_id)
+        pass
+
+
+    elif ms_text == "Прислать кошку":
+        bot.send_photo(chat_id, photo=get_catURL(), caption="Лови котика!!")
+
+
+    elif ms_text == "Прислать анекдот":
+        bot.send_message(chat_id, text=get_anekdot())
+
+    elif ms_text == "Прислать новости":
+        bot.send_message(chat_id, text=get_news())
+
+    else:
+        bot.send_message(chat_id, text="Мне жаль, я не такой умный, чтобы ответить на: " + ms_text)
+
 
 
 @bot.message_handler(content_types=['sticker'])
@@ -40,7 +60,7 @@ def get_messages(message):
 
 def goto_menu(chat_id, name_menu):
     # получение нужного элемента меню
-    cur_menu = Menu.getCurMenu(chat_id)
+    cur_menu = Menu.getcur(chat_id)
     if name_menu == "Выход" and cur_menu != None and cur_menu.parent != None:
         target_menu = Menu.getMenu(chat_id, cur_menu.parent.name)
     else:
@@ -92,6 +112,15 @@ def get_anekdot():
         array_anekdots.append(result.getText().strip())
     return array_anekdots[0]
 
+# -----------------------------------------------------------------------
+def get_catURL():
+    url = ""
+    req = requests.get('https://genrandom.com/ru/cats/')
+    if req.status_code == 200:
+        r_json = req.json()
+        url = r_json['url']
+        # url.split("/")[-1]
+    return url
 
 # -----------------------------------------------------------------------
 bot.polling(none_stop=True, interval=0)  # Запускаем бота
