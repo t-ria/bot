@@ -3,6 +3,7 @@ from telebot import types
 import requests
 import bs4
 import botGames
+import class_menu
 from class_menu import Menu, Users
 bot = telebot.TeleBot('5129343704:AAEQ0O6FhQ_tno-PJzgaLe4cDy0vZHGWa00')
 
@@ -28,6 +29,12 @@ def command(message, res=False):
 def get_text_messages(message):
     chat_id = message.chat.id
     ms_text = message.text
+    cur_user = Users.getUser(chat_id)
+    if cur_user == None:
+        cur_user = Users(chat_id, message.json["from"])
+        subMenu = class_menu.goto_menu(bot, chat_id, ms_text)
+
+
 
 
     if ms_text == "Помощь":
